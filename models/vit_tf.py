@@ -9,6 +9,7 @@ MODEL_CONFIGS = {
         "mlp_dim": 768,
         "num_heads": 3,
         "num_layers": 12,
+        "patch_size": 16,
         "dropout_rate": 0.0,
     },
     "vit_S_16": {
@@ -16,6 +17,7 @@ MODEL_CONFIGS = {
         "mlp_dim": 1536,
         "num_heads": 6,
         "num_layers": 12,
+        "patch_size": 16,
         "dropout_rate": 0.0,
     },
     "vit_B_16": {
@@ -23,6 +25,7 @@ MODEL_CONFIGS = {
         "mlp_dim": 3072,
         "num_heads": 12,
         "num_layers": 12,
+        "patch_size": 16,
         "dropout_rate": 0.0,
     },
     "vit_L_16": {
@@ -30,6 +33,7 @@ MODEL_CONFIGS = {
         "mlp_dim": 4096,
         "num_heads": 16,
         "num_layers": 24,
+        "patch_size": 16,
         "dropout_rate": 0.1,
     },
     "vit_H_16": {
@@ -37,19 +41,54 @@ MODEL_CONFIGS = {
         "mlp_dim": 5120,
         "num_heads": 3,
         "num_layers": 32,
+        "patch_size": 16,
         "dropout_rate": 0.1,
     },
+    "ViTS32": {
+        "dim": 384,
+        "mlp_dim": 1536,
+        "num_heads": 6,
+        "num_layers": 12,
+        "patch_size": 32,
+        "dropout_rate": 0.0,
+    },
+    "vit_B_32": {
+        "dim": 768,
+        "mlp_dim": 3072,
+        "num_heads": 12,
+        "num_layers": 12,
+        "patch_size": 32,
+        "dropout_rate": 0.0,
+    },
+    "vit_L_32": {
+        "dim": 1024,
+        "mlp_dim": 4096,
+        "num_heads": 16,
+        "num_layers": 24,
+        "patch_size": 32,
+        "dropout_rate": 0.1,
+    },
+    "vit_H_32": {
+        "dim": 1280,
+        "mlp_dim": 5120,
+        "num_heads": 3,
+        "num_layers": 32,
+        "patch_size": 32,
+        "dropout_rate": 0.1,
+    },
+
 }
 
 
 class PatchingAndEmbedding(layers.Layer):
-    def __init__(self, dim):
+    def __init__(self, dim, patch_size):
         super(PatchingAndEmbedding, self).__init__()
         self.dim = dim
+        self.patch_size = patch_size
         self.projection = layers.Conv2D(
             filters=self.dim,
-            kernel_size=16,
-            strides=16,
+            kernel_size=patch_size,
+            strides=patch_size,
             padding="VALID",
         )
 
@@ -57,7 +96,7 @@ class PatchingAndEmbedding(layers.Layer):
         self.class_token = self.add_weight(
             shape=[1, 1, self.dim], name="class_token", trainable=True
         )
-        self.num_patches = input_shape[1] // 16 * input_shape[2] // 16
+        self.num_patches = input_shape[1] // self.patch_size * input_shape[2] // self.patch_size
         self.pos_embed = layers.Embedding(
             input_dim=self.num_patches + 1, output_dim=self.dim
         )
@@ -141,6 +180,7 @@ class TransformerEncoder(layers.Layer):
 def ViT(
     input_shape=(None, None, 3),
     classes=None,
+    patch_size = None,
     num_layers=None,
     num_heads=None,
     dropout_rate=None,
@@ -149,7 +189,7 @@ def ViT(
 ):
     inputs = layers.Input(input_shape)
     x = inputs
-    x = PatchingAndEmbedding(dim)(x)
+    x = PatchingAndEmbedding(dim, patch_size)(x)
     x = layers.Dropout(dropout_rate)(x)
 
     for _ in range(num_layers):
@@ -176,6 +216,7 @@ def vit_T_16(
     return ViT(
         input_shape=input_shape,
         classes=classes,
+        patch_size=MODEL_CONFIGS["vit_T_16"]["patch_size"],
         num_layers=MODEL_CONFIGS["vit_T_16"]["num_layers"],
         dim=MODEL_CONFIGS["vit_T_16"]["dim"],
         mlp_dim=MODEL_CONFIGS["vit_T_16"]["mlp_dim"],
@@ -193,6 +234,7 @@ def vit_S_16(
     return ViT(
         input_shape=input_shape,
         classes=classes,
+        patch_size=MODEL_CONFIGS["vit_S_16"]["patch_size"],
         num_layers=MODEL_CONFIGS["vit_S_16"]["num_layers"],
         dim=MODEL_CONFIGS["vit_S_16"]["dim"],
         mlp_dim=MODEL_CONFIGS["vit_S_16"]["mlp_dim"],
@@ -210,6 +252,7 @@ def vit_B_16(
     return ViT(
         input_shape=input_shape,
         classes=classes,
+        patch_size=MODEL_CONFIGS["vit_B_16"]["patch_size"],
         num_layers=MODEL_CONFIGS["vit_B_16"]["num_layers"],
         dim=MODEL_CONFIGS["vit_B_16"]["dim"],
         mlp_dim=MODEL_CONFIGS["vit_B_16"]["mlp_dim"],
@@ -227,6 +270,7 @@ def vit_L_16(
     return ViT(
         input_shape=input_shape,
         classes=classes,
+        patch_size=MODEL_CONFIGS["vit_L_16"]["patch_size"],
         num_layers=MODEL_CONFIGS["vit_L_16"]["num_layers"],
         dim=MODEL_CONFIGS["vit_L_16"]["dim"],
         mlp_dim=MODEL_CONFIGS["vit_L_16"]["mlp_dim"],
@@ -244,6 +288,7 @@ def vit_H_16(
     return ViT(
         input_shape=input_shape,
         classes=classes,
+        patch_size=MODEL_CONFIGS["vit_H_16"]["patch_size"],
         num_layers=MODEL_CONFIGS["vit_H_16"]["num_layers"],
         dim=MODEL_CONFIGS["vit_H_16"]["dim"],
         mlp_dim=MODEL_CONFIGS["vit_H_16"]["mlp_dim"],
@@ -253,6 +298,78 @@ def vit_H_16(
     )
 
 
+def vit_S_32(
+    input_shape=(None, None, 3),
+    classes=None,
+    **kwargs,
+):
+    return ViT(
+        input_shape=input_shape,
+        classes=classes,
+        patch_size=MODEL_CONFIGS["vit_S_32"]["patch_size"],
+        num_layers=MODEL_CONFIGS["vit_S_32"]["num_layers"],
+        dim=MODEL_CONFIGS["vit_S_32"]["dim"],
+        mlp_dim=MODEL_CONFIGS["vit_S_32"]["mlp_dim"],
+        num_heads=MODEL_CONFIGS["vit_S_32"]["num_heads"],
+        dropout_rate=MODEL_CONFIGS["vit_S_32"]["dropout_rate"],
+        **kwargs,
+    )
+
+
+def vit_B_32(
+    input_shape=(None, None, 3),
+    classes=None,
+    **kwargs,
+):
+    return ViT(
+        input_shape=input_shape,
+        classes=classes,
+        patch_size=MODEL_CONFIGS["vit_B_32"]["patch_size"],
+        num_layers=MODEL_CONFIGS["vit_B_32"]["num_layers"],
+        dim=MODEL_CONFIGS["vit_B_32"]["dim"],
+        mlp_dim=MODEL_CONFIGS["vit_B_32"]["mlp_dim"],
+        num_heads=MODEL_CONFIGS["vit_B_32"]["num_heads"],
+        dropout_rate=MODEL_CONFIGS["vit_B_32"]["dropout_rate"],
+        **kwargs,
+    )
+
+
+def vit_L_32(
+    input_shape=(None, None, 3),
+    classes=None,
+    **kwargs,
+):
+    return ViT(
+        input_shape=input_shape,
+        classes=classes,
+        patch_size=MODEL_CONFIGS["vit_L_32"]["patch_size"],
+        num_layers=MODEL_CONFIGS["vit_L_32"]["num_layers"],
+        dim=MODEL_CONFIGS["vit_L_32"]["dim"],
+        mlp_dim=MODEL_CONFIGS["vit_L_32"]["mlp_dim"],
+        num_heads=MODEL_CONFIGS["vit_L_32"]["num_heads"],
+        dropout_rate=MODEL_CONFIGS["vit_L_32"]["dropout_rate"],
+        **kwargs,
+    )
+
+
+def vit_H_32(
+    input_shape=(None, None, 3),
+    classes=None,
+    **kwargs,
+):
+    return ViT(
+        input_shape=input_shape,
+        classes=classes,
+        patch_size=MODEL_CONFIGS["vit_H_32"]["patch_size"],
+        num_layers=MODEL_CONFIGS["vit_H_32"]["num_layers"],
+        dim=MODEL_CONFIGS["vit_H_32"]["dim"],
+        mlp_dim=MODEL_CONFIGS["vit_H_32"]["mlp_dim"],
+        num_heads=MODEL_CONFIGS["vit_H_16"]["num_heads"],
+        dropout_rate=MODEL_CONFIGS["vit_H_32"]["dropout_rate"],
+        **kwargs,
+    )
+
+
 #Testing
-model = vit_T_16(input_shape=(224, 224, 3), classes=1000)
+model = vit_H_32(input_shape=(224, 224, 3), classes=1000)
 print(model.summary())
