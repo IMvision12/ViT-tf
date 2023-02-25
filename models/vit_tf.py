@@ -76,7 +76,6 @@ MODEL_CONFIGS = {
         "patch_size": 32,
         "dropout_rate": 0.1,
     },
-
 }
 
 
@@ -96,7 +95,12 @@ class PatchingAndEmbedding(layers.Layer):
         self.class_token = self.add_weight(
             shape=[1, 1, self.dim], name="class_token", trainable=True
         )
-        self.num_patches = input_shape[1] // self.patch_size * input_shape[2] // self.patch_size
+        self.num_patches = (
+            input_shape[1]
+            // self.patch_size
+            * input_shape[2]
+            // self.patch_size
+        )
         self.pos_embed = layers.Embedding(
             input_dim=self.num_patches + 1, output_dim=self.dim
         )
@@ -123,9 +127,7 @@ class PatchingAndEmbedding(layers.Layer):
             ),
             dtype=x1.dtype,
         )
-        x1 = tf.concat(
-            [x3, x1], 1
-        )
+        x1 = tf.concat([x3, x1], 1)
         pos = tf.range(start=0, limit=self.num_patches + 1, delta=1)
         outputs = x1 + self.pos_embed(pos)
         return outputs
@@ -180,7 +182,7 @@ class TransformerEncoder(layers.Layer):
 def ViT(
     input_shape=(None, None, 3),
     classes=None,
-    patch_size = None,
+    patch_size=None,
     num_layers=None,
     num_heads=None,
     dropout_rate=None,
@@ -370,6 +372,6 @@ def vit_H_32(
     )
 
 
-#Testing
+# Testing
 model = vit_H_32(input_shape=(224, 224, 3), classes=1000)
 print(model.summary())
