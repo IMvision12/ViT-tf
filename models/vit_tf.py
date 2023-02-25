@@ -4,14 +4,6 @@ from tensorflow.keras import layers
 
 # Config taken from official implementation
 MODEL_CONFIGS = {
-    "vit_T_16": {
-        "dim": 192,
-        "mlp_dim": 768,
-        "num_heads": 3,
-        "num_layers": 12,
-        "patch_size": 16,
-        "dropout_rate": 0.0,
-    },
     "vit_S_16": {
         "dim": 384,
         "mlp_dim": 1536,
@@ -44,7 +36,7 @@ MODEL_CONFIGS = {
         "patch_size": 16,
         "dropout_rate": 0.1,
     },
-    "ViTS32": {
+    "vit_S_32": {
         "dim": 384,
         "mlp_dim": 1536,
         "num_heads": 6,
@@ -208,24 +200,6 @@ def ViT(
 
     model = keras.Model(inputs=inputs, outputs=x)
     return model
-
-
-def vit_T_16(
-    input_shape=(None, None, 3),
-    classes=None,
-    **kwargs,
-):
-    return ViT(
-        input_shape=input_shape,
-        classes=classes,
-        patch_size=MODEL_CONFIGS["vit_T_16"]["patch_size"],
-        num_layers=MODEL_CONFIGS["vit_T_16"]["num_layers"],
-        dim=MODEL_CONFIGS["vit_T_16"]["dim"],
-        mlp_dim=MODEL_CONFIGS["vit_T_16"]["mlp_dim"],
-        num_heads=MODEL_CONFIGS["vit_T_16"]["num_heads"],
-        dropout_rate=MODEL_CONFIGS["vit_T_16"]["dropout_rate"],
-        **kwargs,
-    )
 
 
 def vit_S_16(
