@@ -9,13 +9,16 @@ The Vision Transformer, or ViT, is a model for image classification that employs
 
 <p align="center">
   <img src="https://github.com/IMvision12/ViT-tf/blob/main/images/1.PNG" width="350" title="Image">
-  <img src="https://github.com/IMvision12/ViT-tf/blob/main/images/2.PNG" width="250" alt="Patches">
+  <img src="https://github.com/IMvision12/ViT-tf/blob/main/images/2.PNG" width="260" alt="Patches">
 </p>
 
 # Model Architecture
 
 ![Architecture](https://github.com/IMvision12/ViT-tf/blob/main/images/arch.png)
 
+# Details of Variants of vision transformer(Huge, Base, Large)
+
+![Details](https://github.com/IMvision12/ViT-tf/blob/main/images/Capture2.PNG)
 # References
 
 [1] ViT paper: https://arxiv.org/abs/2010.11929
